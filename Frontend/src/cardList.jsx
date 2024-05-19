@@ -80,7 +80,7 @@ const CardList = () => {
     console.log('Current detail ID:', currentDetailId);
     console.log('Form data:', formData);
     try {
-  
+      // Check if formData contains the correct image URLs
       console.log('Background image URL:', formData.background_image_url);
       console.log('Logo image URL:', formData.logo_image_url);
   
