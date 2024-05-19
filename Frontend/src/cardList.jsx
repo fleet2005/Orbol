@@ -25,7 +25,7 @@ const CardList = () => {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/details/delete/${id}`, {
+      const response = await fetch(`https://orbol-backend.vercel.app/api/details/delete/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'
@@ -56,7 +56,7 @@ const CardList = () => {
 
       //Creation of card: POST Request
 
-      const response = await fetch('http://localhost:5000/api/details/create', {
+      const response = await fetch('https://orbol-backend.vercel.app/api/details/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -95,7 +95,7 @@ const CardList = () => {
       const backgroundBase64 = formData.background_image instanceof File ? await convertToBase64(formData.background_image) : formData.background_image;
       const logoBase64 = formData.logo_image instanceof File ? await convertToBase64(formData.logo_image) : formData.logo_image;
 
-      const response = await fetch(`http://localhost:5000/api/details/update/${currentDetailId}`, {
+      const response = await fetch(`https://orbol-backend.vercel.app/api/details/update/${currentDetailId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -131,7 +131,7 @@ const CardList = () => {
 
   const fetchCardData = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/details/');
+      const response = await fetch('https://orbol-backend.vercel.app/api/details/');
       if (response.ok) {
         const data = await response.json();
         setDetails(data);
