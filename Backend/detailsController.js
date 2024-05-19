@@ -4,14 +4,19 @@ const Details = require('./models/schemaone.js');
 
 exports.createDetail = async (req, res) => {
     try {
-        const { card_id, title, short_description, background_image, logo_image } = req.body;
+        console.log(req.body);
+        const { card_id, title, short_description, background_image_url, logo_image_url } = req.body;
+
+        if (!background_image_url || !logo_image_url) {
+            return res.status(400).json({ message: 'Background image URL and logo image URL are required' });
+        }
 
         const newDetail = new Details({
             card_id,
             title,
             short_description,
-            background_image,
-            logo_image
+            background_image_url,
+            logo_image_url
         });
 
         await newDetail.save();
@@ -26,13 +31,7 @@ exports.createDetail = async (req, res) => {
 exports.deleteDetail = async (req, res) => {
     try {
         const { id } = req.params;
-
-        const deletedDetail = await Details.findByIdAndDelete(id);
-
-        if (!deletedDetail) {
-            return res.status(404).json({ message: 'Detail not found' });
-        }
-
+        await Details.findByIdAndDelete(id);
         res.status(200).json({ message: 'Detail deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
@@ -43,13 +42,19 @@ exports.deleteDetail = async (req, res) => {
 exports.updateDetail = async (req, res) => {
     try {
         const { id } = req.params;
-        const { card_id, title, short_description, background_image, logo_image } = req.body;
+        const { card_id, title, short_description, background_image_url, logo_image_url } = req.body;
 
-        const updatedDetail = await Details.findByIdAndUpdate(
-            id,
-            { card_id, title, short_description, background_image, logo_image },
-            { new: true, runValidators: true }
-        );
+        let updateFields = { card_id, title, short_description };
+
+        if (background_image_url) {
+            updateFields.background_image_url = background_image_url;
+        }
+
+        if (logo_image_url) {
+            updateFields.logo_image_url = logo_image_url;
+        }
+
+        const updatedDetail = await Details.findByIdAndUpdate(id, updateFields, { new: true });
 
         if (!updatedDetail) {
             return res.status(404).json({ message: 'Detail not found' });
@@ -60,6 +65,7 @@ exports.updateDetail = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
 
 exports.getAllDetails = async (req, res) => {
     try {

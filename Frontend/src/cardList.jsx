@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './index.css';
 
-//Displayed cardlist 
-
 const CardList = () => {
   const [details, setDetails] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -11,8 +9,8 @@ const CardList = () => {
     card_id: '',
     title: '',
     short_description: '',
-    background_image: '',
-    logo_image: ''
+    background_image_url: '', 
+    logo_image_url: '',  
   });
   const [currentDetailId, setCurrentDetailId] = useState(null);
   const [error, setError] = useState(null);
@@ -20,8 +18,6 @@ const CardList = () => {
   useEffect(() => {
     fetchCardData();
   }, []);
-
-  //deletion of cards : delete request
 
   const handleDelete = async (id) => {
     try {
@@ -37,6 +33,7 @@ const CardList = () => {
         throw new Error('Failed to delete card');
       }
     } catch (error) {
+      setError(error.message);
       console.error('Error deleting card:', error);
     }
   };
@@ -46,26 +43,15 @@ const CardList = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  //form submission
-
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
-      const backgroundBase64 = formData.background_image instanceof File ? await convertToBase64(formData.background_image) : formData.background_image;
-      const logoBase64 = formData.logo_image instanceof File ? await convertToBase64(formData.logo_image) : formData.logo_image;
-
-      //Creation of card: POST Request
-
       const response = await fetch('https://orbol-backend.vercel.app/api/details/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          ...formData,
-          background_image: backgroundBase64,
-          logo_image: logoBase64
-        })
+        body: JSON.stringify(formData)
       });
 
       if (response.ok) {
@@ -74,8 +60,8 @@ const CardList = () => {
           card_id: '',
           title: '',
           short_description: '',
-          background_image: '',
-          logo_image: ''
+          background_image_url: '',
+          logo_image_url: ''
         });
         setShowForm(false);
       } else {
@@ -86,39 +72,48 @@ const CardList = () => {
       console.error('Error creating card:', error);
     }
   };
-
-  //Card Updation : PUT request
+  
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    console.log('Updating card...');
+    console.log('Current detail ID:', currentDetailId);
+    console.log('Form data:', formData);
     try {
-      const backgroundBase64 = formData.background_image instanceof File ? await convertToBase64(formData.background_image) : formData.background_image;
-      const logoBase64 = formData.logo_image instanceof File ? await convertToBase64(formData.logo_image) : formData.logo_image;
-
+      // Check if formData contains the correct image URLs
+      console.log('Background image URL:', formData.background_image_url);
+      console.log('Logo image URL:', formData.logo_image_url);
+  
       const response = await fetch(`https://orbol-backend.vercel.app/api/details/update/${currentDetailId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          ...formData,
-          background_image: backgroundBase64,
-          logo_image: logoBase64
-        })
+        body: JSON.stringify(formData)
       });
-
+  
+      console.log('Update response:', response);
+  
       if (response.ok) {
-        fetchCardData();
+        console.log('Card updated successfully');
+        const updatedDetail = await response.json();  
+        console.log('Updated detail:', updatedDetail);  
         setFormData({
-          card_id: '',
-          title: '',
-          short_description: '',
-          background_image: '',
-          logo_image: ''
+          card_id: updatedDetail.card_id,
+          title: updatedDetail.title,
+          short_description: updatedDetail.short_description,
+          background_image_url: updatedDetail.background_image_url,
+          logo_image_url: updatedDetail.logo_image_url,
         });
+        console.log('Updated formData:', formData);
+        
+        console.log('Updated formData:', formData);  
+        fetchCardData();
         setShowUpdateForm(false);
         setCurrentDetailId(null);
       } else {
+        const responseData = await response.json();  
+        console.error('Error updating card:', responseData.error);  
         throw new Error('Failed to update card');
       }
     } catch (error) {
@@ -126,8 +121,9 @@ const CardList = () => {
       console.error('Error updating card:', error);
     }
   };
-
-  //Get All Cards
+  
+  
+  
 
   const fetchCardData = async () => {
     try {
@@ -149,22 +145,11 @@ const CardList = () => {
       card_id: detail.card_id,
       title: detail.title,
       short_description: detail.short_description,
-      background_image: detail.background_image,
-      logo_image: detail.logo_image
+      background_image_url: detail.background_image_url,  
+      logo_image_url: detail.logo_image_url, 
     });
     setCurrentDetailId(detail._id);
     setShowUpdateForm(true);
-  };
-
-  //Image-Base^ 64 Converter
-  
-  const convertToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-    });
   };
 
   return (
@@ -186,12 +171,12 @@ const CardList = () => {
             <input type="text" name="short_description" value={formData.short_description} onChange={handleFormChange} />
           </label>
           <label>
-            Background Image:
-            <input type="file" name="background_image" onChange={(e) => setFormData({ ...formData, background_image: e.target.files[0] })} />
+            Background Image URL: 
+            <input type="text" name="background_image_url" value={formData.background_image_url} onChange={handleFormChange} /> {}
           </label>
           <label>
-            Logo Image:
-            <input type="file" name="logo_image" onChange={(e) => setFormData({ ...formData, logo_image: e.target.files[0] })} />
+            Logo Image URL: 
+            <input type="text" name="logo_image_url" value={formData.logo_image_url} onChange={handleFormChange} /> {}
           </label>
           <div className="form-buttons">
             <button type="submit">Save</button>
@@ -201,6 +186,7 @@ const CardList = () => {
       )}
       {showUpdateForm && (
         <form onSubmit={handleUpdate} className="card-form">
+           
           <label>
             Card ID:
             <input type="text" name="card_id" value={formData.card_id} onChange={handleFormChange} />
@@ -214,12 +200,12 @@ const CardList = () => {
             <input type="text" name="short_description" value={formData.short_description} onChange={handleFormChange} />
           </label>
           <label>
-            Background Image:
-            <input type="file" name="background_image" onChange={(e) => setFormData({ ...formData, background_image: e.target.files[0] })} />
+            Background Image URL:  
+            <input type="text" name="background_image_url" value={formData.background_image_url} onChange={handleFormChange} /> {/* Changed input name */}
           </label>
           <label>
-            Logo Image:
-            <input type="file" name="logo_image" onChange={(e) => setFormData({ ...formData, logo_image: e.target.files[0] })} />
+            Logo Image URL:  
+            <input type="text" name="logo_image_url" value={formData.logo_image_url} onChange={handleFormChange} /> {/* Changed input name */}
           </label>
           <div className="form-buttons">
             <button type="submit">Update</button>
@@ -229,8 +215,9 @@ const CardList = () => {
       )}
       {details.map(detail => (
         <div className="card" key={detail._id}>
-          <img src={detail.background_image} alt={`${detail.title} background`} className="card-background" />
-          <img src={detail.logo_image} alt={`${detail.title} logo`} className="card-logo" />
+          <img src={detail.background_image_url} alt={`${detail.title} background`} className="card-background" />
+          <img src={detail.logo_image_url} alt={`${detail.title} logo`} className="card-logo" />
+
           <div className="card-content">
             <h2>{detail.title}</h2>
             <p>{detail.short_description}</p>
@@ -242,7 +229,6 @@ const CardList = () => {
         </div>
       ))}
     </div>
-    
   );
 };
 

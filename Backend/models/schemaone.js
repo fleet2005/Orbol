@@ -14,13 +14,13 @@ const schemaone = mongoose.Schema(
             type: String,
             required: [true, "Please enter Short Description"],
         },
-        background_image: {
+        background_image_url: {
             type: String,  
-            required: [true, "Please enter Background Image"],
+            required: [true, "Please enter Background Image URL"],
         },
-        logo_image: {
+        logo_image_url: {
             type: String,  
-            required: [true, "Please enter Logo Image"],
+            required: [true, "Please enter Logo Image URL"],
         },
     },
     {
@@ -28,4 +28,4 @@ const schemaone = mongoose.Schema(
     }
 );
 
-module.exports = mongoose.model("details", schemaone);
+module.exports = mongoose.model("Details", schemaone);
