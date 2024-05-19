@@ -4,7 +4,7 @@ const detailsRoutes = require('./detailsRoutes');
 const connectDB = require("./mongoconn");
 const bodyParser = require('body-parser');
 const cloudinary = require('cloudinary').v2; 
-const cloudinary = require('cloudinary').v2; 
+
 
 const cors = require('cors');
 
