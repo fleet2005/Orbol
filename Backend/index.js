@@ -5,7 +5,6 @@ const connectDB = require("./mongoconn");
 const bodyParser = require('body-parser');
 const cloudinary = require('cloudinary').v2; 
 
-
 const cors = require('cors');
 
 const app= express();
@@ -30,6 +29,15 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
+
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+    secure:true
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
